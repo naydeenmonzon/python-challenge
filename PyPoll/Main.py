@@ -8,6 +8,7 @@ total_votes = 0
 dict_vote = {}
 candidate_list = []
 
+
 with open(csvpath) as csvfile:
     data = csv.reader(csvfile, delimiter=',')
     header = next(data)
@@ -15,55 +16,65 @@ with open(csvpath) as csvfile:
     #loop through each row...
     for row in data:
         
-        #select the candidate value from the header list
+        #create a candidate list by adding all the candidate names into an empty list
         candidate = row[2]
-        #then add the name into an empty list(candidate_list)
         if candidate not in candidate_list:
             candidate_list.append(candidate)
-
-        #create a dictionary with names as key and total votes as value and add all the total votes(value) of each candidate(key)
+    
+        #create a dictionary with names as key and total votes as value then add all the total votes(value) of each candidate(key)
         votes = dict_vote.get(candidate, 0)
         dict_vote[candidate] = votes + 1
         
-    
+
     #get the total vote count by adding all the values from the dictionary
     total_votes = sum(dict_vote.values())
 
-    #instead of using actual names from the file, list each candidate names in generic format so the script can be used again
-    Candidate1 = candidate_list[0]
-    Candidate2 = candidate_list[1]
-    Candidate3 = candidate_list[2]
-    Candidate4 = candidate_list[3]
     
-    #get the total vote count for each candidate
-    Candidate1_votes = list(dict_vote.values())[0]
-    Candidate2_votes = list(dict_vote.values())[1]
-    Candidate3_votes = list(dict_vote.values())[2]
-    Candidate4_votes = list(dict_vote.values())[3]
-    
-    #get the percentage vote from each candidate by dividing the value of each key from the total votes
-    Candidate1_percent = format(((dict_vote[Candidate1] / total_votes) * 100), '.3f')
-    Candidate2_percent = format(((dict_vote[Candidate2] / total_votes) * 100), '.3f')
-    Candidate3_percent = format(((dict_vote[Candidate3] / total_votes) * 100), '.3f')
-    Candidate4_percent = format(((dict_vote[Candidate4] / total_votes) * 100), '.3f')
-
     #winner would be the key with the highest value
     winner = max(dict_vote, key=dict_vote.get)
     
-    #print results
-    output = (f'''
-    Election Results
-    ------------------------------------------------------------
-    Total Votes: {total_votes}
-    ------------------------------------------------------------
-    {Candidate1}: {Candidate1_percent}% ({Candidate1_votes})
-    {Candidate2}: {Candidate2_percent}% ({Candidate2_votes})
-    {Candidate3}: {Candidate3_percent}% ({Candidate3_votes})
-    {Candidate4}: {Candidate4_percent}% ({Candidate4_votes})
-    ------------------------------------------------------------
-    Winner: {winner}
-    ------------------------------------------------------------''')
-    print(output)
+
+    #note: since the total votes and percentage result is dependent on the number of candidates,
+    #      we'll need to do a loop function based on total candidates.
+    #      And since the print statement for the results needs to be listed per candidate,
+    #      the print funtion needs to be inside the loop
     
+
+    
+#print the summary statement and write in the text_file for every print 
 with open(output_path, "w") as txt_file:
-    txt_file.write(output)
+
+    
+#-------------------------------------------------HEADER-------------------------------------------------
+    header = (f'''
+Election Results
+------------------------------------------------------------
+Total Votes: {total_votes}
+------------------------------------------------------------\n''')
+    print(header)
+    txt_file.write(header)
+#--------------------------------------------------------------------------------------------------------
+
+
+    #do a loop for each candidate based on candidate list
+    for candidate in candidate_list:
+
+        #total number of votes
+        candidate_total_vote = dict_vote.get(candidate)
+        #percentage of votes
+        candidate_percentage_vote = format(((candidate_total_vote / total_votes) * 100), '.3f')
+        #print results for each candidate
+        output = f"{candidate}: {candidate_percentage_vote}% ({candidate_total_vote})\n"
+        print(output)
+        txt_file.write(output)
+
+
+#-------------------------------------------------FOOTER-------------------------------------------------
+    winner_result = (f'''
+------------------------------------------------------------
+Winner: {winner}
+------------------------------------------------------------''')
+    print(winner_result)
+    txt_file.write(winner_result)
+#--------------------------------------------------------------------------------------------------------
+
